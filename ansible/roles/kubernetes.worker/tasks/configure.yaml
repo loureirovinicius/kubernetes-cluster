@@ -1,0 +1,67 @@
+- name: Creating file with required kernel modules
+  copy:
+    src: ../files/kernel-modules.conf
+    dest: /etc/modules-load.d/k8s.conf
+
+- name: iptables required config
+  copy:
+    src: ../files/iptables.conf
+    dest: /etc/sysctl.d/k8s.conf
+
+- name: Sysctl reading the new configs
+  command: sysctl --system
+
+- name: Load new modules
+  systemd:
+    state: restarted
+    name: systemd-modules-load.service
+
+- name: Creating directory for GPG key
+  file:
+    path: /usr/share/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Downloading GPG key
+  get_url:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    dest: /tmp/kubernetesgpg
+
+- name: De-armor GPG key
+  command: gpg -o /usr/share/keyrings/kubernetes-archive-keyring.gpg --dearmor /tmp/kubernetesgpg
+
+- name: Setting up the repository
+  apt_repository:
+    repo: deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+    filename: kubernetes
+
+- name: Disable swap from node
+  command: swapoff -a
+  become: true
+
+- name: Remove swapfile from /etc/fstab
+  mount:
+    name: swap
+    fstype: swap
+    state: absent
+
+- name: Open Kubelet API and NodePort ports
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_ports: 
+      - "10250"
+      - "30000:32767"
+    jump: ACCEPT
+    comment: Kubernetes ports
+
+- name: Open CNI UDP ports
+  iptables:
+    chain: INPUT
+    protocol: udp
+    destination_ports: 
+      - "8285"
+      - "8472"
+    jump: ACCEPT
+    comment: Flannel ports

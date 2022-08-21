@@ -1,0 +1,8 @@
+- name: Install required packages for Kubernetes
+  apt: 
+    pkg:
+    - apt-transport-https
+    - kubelet
+    - kubeadm
+    state: present
+    update_cache: yes

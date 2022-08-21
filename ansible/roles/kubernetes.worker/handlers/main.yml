@@ -1,0 +1,4 @@
+---
+# handlers file for kubernetes.worker
+- name: Sysctl reading the new configs
+  command: sysctl --system

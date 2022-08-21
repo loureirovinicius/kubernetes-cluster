@@ -1,0 +1,9 @@
+---
+# handlers file for ./roles/kubernetes
+- name: Sysctl reading the new configs
+  command: sysctl --system
+
+- name: Load new modules
+  systemd:
+    state: restarted
+    name: systemd-modules-load.service

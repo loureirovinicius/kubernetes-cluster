@@ -1,0 +1,17 @@
+- name: Install requirements for setting up the repository
+  apt:
+    pkg:
+    - ca-certificates
+    - gnupg
+    - lsb-release
+    - containerd.io
+    - acl
+    state: present
+
+- name: containerd configuration
+  copy:
+    src: ../files/config.toml
+    dest: /etc/containerd/config.toml
+  notify:
+    - Restart containerd
+    

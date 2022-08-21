@@ -1,0 +1,33 @@
+---
+- name: User creation
+  hosts: all
+  become: true
+  tasks:
+
+  - name: Create k8s user
+    user:
+      name: kube
+      comment: Kubernetes user
+      group: admin
+      home: /home/kube
+      shell: /bin/bash
+      state: present
+      password: ''
+
+- name: Install containerd (CRI)
+  hosts: all
+  become: true
+  roles:
+  - containerd
+
+- name: Create master node (k8s)
+  hosts: master_nodes
+  become: true
+  roles:
+  - kubernetes.master
+
+- name: Create worker nodes (k8s)
+  hosts: worker_nodes
+  become: true
+  roles:
+  - kubernetes.worker

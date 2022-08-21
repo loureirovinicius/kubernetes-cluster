@@ -1,0 +1,34 @@
+- name: Download images
+  command: kubeadm config images pull
+
+- name: Initiate the control plane
+  command: "kubeadm init --upload-certs --control-plane-endpoint={{ ansible_eth0.ipv4.address }} --pod-network-cidr=10.244.0.0/16"
+
+- name: Create .kube directory
+  file:
+    path: /home/kube/.kube
+    state: directory
+  register: kube_dir
+
+- name: Configure kubectl files
+  copy:
+    remote_src: yes
+    src: /etc/kubernetes/admin.conf
+    dest: /home/kube/.kube/config
+    owner: kube
+    group: admin
+
+- name: Change kubectl's config file permissions
+  file:
+    path: /home/kube/.kube/config
+    owner: kube
+    group: admin
+
+- name: Apply CNI config
+  become_user: kube
+  command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+
+- name: Get kubeadm join command
+  become_user: kube
+  command: kubeadm token create --print-join-command
+  register: join_cluster_command

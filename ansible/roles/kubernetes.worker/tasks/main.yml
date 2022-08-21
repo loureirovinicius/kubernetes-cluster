@@ -1,0 +1,5 @@
+---
+# tasks file for kubernetes.worker
+- import_tasks: configure.yaml
+- import_tasks: install.yaml
+- import_tasks: join-cluster.yaml

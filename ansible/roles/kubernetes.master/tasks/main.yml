@@ -1,0 +1,7 @@
+---
+# tasks file for ./roles/kubernetes
+ - import_tasks: configure.yaml
+ - import_tasks: install.yaml
+ - import_tasks: cluster-config.yaml
+
+  

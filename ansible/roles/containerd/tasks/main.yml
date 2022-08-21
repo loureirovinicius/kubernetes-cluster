@@ -1,0 +1,4 @@
+---
+# tasks file for containerd
+- import_tasks: configure.yaml
+- import_tasks: install.yaml

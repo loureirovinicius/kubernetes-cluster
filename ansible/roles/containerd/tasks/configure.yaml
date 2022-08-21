@@ -1,0 +1,23 @@
+- name: Get processor's architecture
+  command: dpkg --print-architecture
+  register: architecture
+
+- name: Create Docker's GPG key directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Docker's GPG key
+  get_url: 
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /tmp/dockergpg
+
+- name: De-armor Docker GPG Key
+  command: gpg -o /etc/apt/keyrings/docker.gpg --dearmor /tmp/dockergpg 
+
+- name: Set the repository up for downloading containerd
+  apt_repository:
+    repo: "deb [arch={{ architecture.stdout }} signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+    filename: docker

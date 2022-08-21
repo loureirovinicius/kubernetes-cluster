@@ -1,0 +1,19 @@
+---
+master_nodes:
+  hosts:
+%{ for content_key, content_value in content }
+%{~ if substr(content_key, 0, 6) == "master" ~}
+    ${content_key}:
+      ansible_host: ${content_value}
+      ansible_user: ${username}
+%{ endif ~}
+%{~ endfor ~}
+worker_nodes:
+  hosts:
+%{ for content_key, content_value in content }
+%{~ if substr(content_key, 0, 6) == "worker" ~}
+    ${content_key}:
+      ansible_host: ${content_value}
+      ansible_user: ${username}
+%{ endif ~}
+%{~ endfor ~}
